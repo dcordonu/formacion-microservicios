@@ -1,12 +1,12 @@
 package com.hiberus.show.api.domain.entity;
 
-public class Rating {
+public class Review {
 
-    private int punctuation;
+    private int rating;
     private String comment;
 
-    public int getPunctuation() {
-        return punctuation;
+    public int getRating() {
+        return rating;
     }
 
     public String getComment() {

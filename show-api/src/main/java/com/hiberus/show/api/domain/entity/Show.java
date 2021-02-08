@@ -12,13 +12,13 @@ public class Show {
     private final String identifier;
     private final String name;
     private final String[] availablePlatforms;
-    private final Rating[] ratings;
+    private final Review[] reviews;
 
-    public Show(final String identifier, final String name, final String[] availablePlatforms, final Rating[] ratings) {
+    public Show(final String identifier, final String name, final String[] availablePlatforms, final Review[] reviews) {
         this.identifier = identifier;
         this.name = name;
         this.availablePlatforms = availablePlatforms;
-        this.ratings = ratings;
+        this.reviews = reviews;
     }
 
     public String getIdentifier() {
@@ -33,8 +33,8 @@ public class Show {
         return availablePlatforms;
     }
 
-    public Rating[] getRatings() {
-        return ratings;
+    public Review[] getReviews() {
+        return reviews;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class Show {
                 "identifier='" + identifier + '\'' +
                 ", name='" + name + '\'' +
                 ", availablePlatforms=" + Arrays.toString(availablePlatforms) +
-                ", ratings=" + Arrays.toString(ratings) +
+                ", reviews=" + Arrays.toString(reviews) +
                 '}';
     }
 }

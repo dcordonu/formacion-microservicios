@@ -5,13 +5,13 @@ public class ShowDto {
     private final String identifier;
     private final String title;
     private final String[] availablePlatforms;
-    private final RatingDto[] ratings;
+    private final ReviewDto[] reviews;
 
-    public ShowDto(final String identifier, final String title, final String[] availablePlatforms, final RatingDto[] ratings) {
+    public ShowDto(final String identifier, final String title, final String[] availablePlatforms, final ReviewDto[] reviews) {
         this.identifier = identifier;
         this.title = title;
         this.availablePlatforms = availablePlatforms;
-        this.ratings = ratings;
+        this.reviews = reviews;
     }
 
     public String getIdentifier() { return identifier; }
@@ -24,7 +24,7 @@ public class ShowDto {
         return availablePlatforms;
     }
 
-    public RatingDto[] getRatings() {
-        return ratings;
+    public ReviewDto[] getReviews() {
+        return reviews;
     }
 }
