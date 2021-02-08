@@ -17,6 +17,7 @@ docker run -d --name shows-database -p 27017:27017 mongo
 ### Insert Data into MongoDB collection
 
 ```
+use shows
 db.shows.insertMany([{"name": "Space Jam", "availablePlatforms": ["HBO", "Flixole"]}, {"name": "Tron", "availablePlatforms": ["Disney+"]}, {"name": "Tenet", "availablePlatforms" : ["Netflix", "HBO"]}])
 ```
 

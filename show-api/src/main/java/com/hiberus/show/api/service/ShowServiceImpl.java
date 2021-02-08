@@ -50,9 +50,17 @@ public class ShowServiceImpl implements ShowService {
         final Optional<Show> show = showRepository.findById(identifier);
 
         return show.map(s -> {
-            final List<RatingDto> ratingDtos = new ArrayList<>();
-            Arrays.stream(s.getRatings()).forEach(rating -> ratingDtos.add(new RatingDto(rating.getPunctuation(), rating.getComment())));
-            return new ShowDto(s.getIdentifier(), s.getName(), s.getAvailablePlatforms(), ratingDtos.toArray(new RatingDto[0]));
+            final RatingDto[] ratingDtos;
+
+            if (s.getRatings() != null) {
+                final List<RatingDto> ratingDtoList = new ArrayList<>();
+                Arrays.stream(s.getRatings()).forEach(rating -> ratingDtoList.add(new RatingDto(rating.getPunctuation(), rating.getComment())));
+                ratingDtos = ratingDtoList.toArray(new RatingDto[0]);
+            } else {
+                ratingDtos = null;
+            }
+
+            return new ShowDto(s.getIdentifier(), s.getName(), s.getAvailablePlatforms(), ratingDtos);
         }).or(Optional::empty);
     }
 }
