@@ -1,36 +1,30 @@
 package com.hiberus.show.api.domain.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hiberus.show.api.domain.entity.Rating;
-
 public class ShowDto {
 
     private final String identifier;
-    private final String name;
-
-    @JsonProperty(value = "available_platforms")
+    private final String title;
     private final String[] availablePlatforms;
+    private final RatingDto[] ratings;
 
-    private final Rating[] ratings;
-
-    public ShowDto(final String identifier, final String name, final String[] availablePlatforms, final Rating[] ratings) {
+    public ShowDto(final String identifier, final String title, final String[] availablePlatforms, final RatingDto[] ratings) {
         this.identifier = identifier;
-        this.name = name;
+        this.title = title;
         this.availablePlatforms = availablePlatforms;
         this.ratings = ratings;
     }
 
     public String getIdentifier() { return identifier; }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
     public String[] getAvailablePlatforms() {
         return availablePlatforms;
     }
 
-    public Rating[] getRatings() {
+    public RatingDto[] getRatings() {
         return ratings;
     }
 }
