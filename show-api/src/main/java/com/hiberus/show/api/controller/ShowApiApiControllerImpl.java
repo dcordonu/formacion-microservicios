@@ -1,8 +1,8 @@
 package com.hiberus.show.api.controller;
 
 import com.hiberus.show.api.domain.dto.ShowDto;
-import com.hiberus.show.api.service.ShowService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.hiberus.show.api.service.ShowApiService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,20 +11,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/show", produces = MediaType.APPLICATION_JSON_VALUE)
-public class ShowControllerImpl implements ShowController {
+public class ShowApiApiControllerImpl implements ShowApiController {
 
-    private final ShowService showService;
-
-    @Autowired
-    public ShowControllerImpl(final ShowService showService) {
-        this.showService = showService;
-    }
+    private final ShowApiService showApiService;
 
     @Override
     @GetMapping("/all")
     public ResponseEntity<ShowDto[]> retrieveAllShows() {
-        final ShowDto[] shows = showService.retrieveAllShows();
+        final ShowDto[] shows = showApiService.retrieveAllShows();
 
         return ResponseEntity.ok(shows);
     }
@@ -32,6 +28,6 @@ public class ShowControllerImpl implements ShowController {
     @Override
     @GetMapping(value = "/{identifier}")
     public ResponseEntity<ShowDto> retrieveShowById(@PathVariable("identifier") final String identifier) {
-        return showService.retrieveShowByIdentifier(identifier).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return showApiService.retrieveShowByIdentifier(identifier).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
