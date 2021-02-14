@@ -39,14 +39,22 @@ public class ShowApiIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Before
-    public void before() {
+    public void setup() {
         mongoTemplate.dropCollection(SHOWS_COLLECTION);
         mongoTemplate.save(Show.builder().name("Tenet").availablePlatforms(new String[]{"HBO"}).identifier("1").build(), SHOWS_COLLECTION);
     }
 
     @Test
-    public void test() throws Exception {
+    public void testFindAll() throws Exception {
         MvcResult result = mockMvc.perform(get("/show/all")).andExpect(status().isOk()).andReturn();
         assertThat(result.getResponse().getContentAsString()).isEqualTo(objectMapper.writeValueAsString(new ShowDto[]{ShowDto.builder().title("Tenet").availablePlatforms(new String[]{"HBO"}).identifier("1").build()}));
+    }
+
+    @Test
+    public void testFindById() throws Exception {
+        MvcResult result = mockMvc.perform(get("/show/1")).andExpect(status().isOk()).andReturn();
+        assertThat(result.getResponse().getContentAsString()).isEqualTo(objectMapper.writeValueAsString(ShowDto.builder().title("Tenet").availablePlatforms(new String[]{"HBO"}).identifier("1").build()));
+
+        mockMvc.perform(get("/show/2")).andExpect(status().isNotFound()).andReturn();
     }
 }

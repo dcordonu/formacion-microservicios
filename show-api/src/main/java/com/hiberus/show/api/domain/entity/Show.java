@@ -1,22 +1,25 @@
 package com.hiberus.show.api.domain.entity;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
+@Value
 @Builder
 @Document(collection = "shows")
 public class Show {
 
     @Id
-    private final String identifier;
-    private final String name;
+    String identifier;
+    String name;
+    String[] availablePlatforms;
+    Review[] reviews;
 
-    @Builder.Default
-    private final String[] availablePlatforms = new String[0];
-
-    @Builder.Default
-    private final Review[] reviews = new Review[0];
+    Show(String identifier, String name, String[] availablePlatforms, Review[] reviews) {
+        this.identifier = identifier;
+        this.name = name;
+        this.availablePlatforms = availablePlatforms != null ? availablePlatforms : new String[0];
+        this.reviews = reviews != null ? reviews : new Review[0];
+    }
 }

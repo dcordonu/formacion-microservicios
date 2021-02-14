@@ -1,12 +1,12 @@
 package com.hiberus.show.api.domain.entity;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class Review {
 
-    private int rating;
-    private String comment;
+    int rating;
+    String comment;
 }

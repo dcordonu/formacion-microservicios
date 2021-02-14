@@ -2,23 +2,22 @@ package com.hiberus.show.api.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 @JsonPropertyOrder(alphabetic = true)
 public class ShowDto {
 
-    @NonNull
-    private final String identifier;
+    String identifier;
+    String title;
+    String[] availablePlatforms;
+    ReviewDto[] reviews;
 
-    @NonNull
-    private final String title;
-
-    @Builder.Default
-    private final String[] availablePlatforms = new String[0];
-
-    @Builder.Default
-    private final ReviewDto[] reviews = new ReviewDto[0];
+    ShowDto(String identifier, String title, String[] availablePlatforms, ReviewDto[] reviews) {
+        this.identifier = identifier;
+        this.title = title;
+        this.availablePlatforms = availablePlatforms != null ? availablePlatforms : new String[0];
+        this.reviews = reviews != null ? reviews : new ReviewDto[0];
+    }
 }

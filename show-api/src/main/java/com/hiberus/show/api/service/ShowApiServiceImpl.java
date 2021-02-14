@@ -39,10 +39,10 @@ public class ShowApiServiceImpl implements ShowApiService {
         return show.map(s -> ShowDto.builder()
                 .title(s.getName())
                 .availablePlatforms(s.getAvailablePlatforms())
-                .reviews(s.getReviews() != null ? Arrays.stream(s.getReviews()).map(r -> ReviewDto.builder()
+                .reviews(Arrays.stream(s.getReviews()).map(r -> ReviewDto.builder()
                         .rating(r.getRating())
                         .comment(r.getComment())
-                .build()).toArray(ReviewDto[]::new) : new ReviewDto[0])
+                        .build()).toArray(ReviewDto[]::new))
                 .identifier(s.getIdentifier())
         .build()).or(Optional::empty);
     }
