@@ -1,0 +1,65 @@
+package com.hiberus.show.api.service;
+
+import com.hiberus.show.api.domain.dto.ReviewDto;
+import com.hiberus.show.api.domain.entity.Show;
+import com.hiberus.show.api.domain.dto.ShowDto;
+import com.hiberus.show.api.repository.ShowRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class ShowServiceImpl implements ShowService {
+
+    private final ShowRepository showRepository;
+
+    @Autowired
+    public ShowServiceImpl(final ShowRepository showRepository) {
+        this.showRepository = showRepository;
+    }
+
+    @Override
+    public ShowDto[] retrieveAllShows() {
+        final List<ShowDto> showDtoList = new ArrayList<>();
+        final List<Show> shows = showRepository.findAll();
+
+        shows.forEach(show -> {
+            final ReviewDto[] reviewDtos;
+
+            if (show.getReviews() != null) {
+                final List<ReviewDto> reviewDtoList = new ArrayList<>();
+                Arrays.stream(show.getReviews()).forEach(rating -> reviewDtoList.add(new ReviewDto(rating.getRating(), rating.getComment())));
+                reviewDtos = reviewDtoList.toArray(new ReviewDto[0]);
+            } else {
+                reviewDtos = null;
+            }
+
+            showDtoList.add(new ShowDto(show.getIdentifier(), show.getName(), show.getAvailablePlatforms(), reviewDtos));
+        });
+
+        return showDtoList.toArray(new ShowDto[0]);
+    }
+
+    @Override
+    public Optional<ShowDto> retrieveShowByIdentifier(final String identifier) {
+        final Optional<Show> show = showRepository.findById(identifier);
+
+        return show.map(s -> {
+            final ReviewDto[] reviewDtos;
+
+            if (s.getReviews() != null) {
+                final List<ReviewDto> reviewDtoList = new ArrayList<>();
+                Arrays.stream(s.getReviews()).forEach(rating -> reviewDtoList.add(new ReviewDto(rating.getRating(), rating.getComment())));
+                reviewDtos = reviewDtoList.toArray(new ReviewDto[0]);
+            } else {
+                reviewDtos = null;
+            }
+
+            return new ShowDto(s.getIdentifier(), s.getName(), s.getAvailablePlatforms(), reviewDtos);
+        }).or(Optional::empty);
+    }
+}

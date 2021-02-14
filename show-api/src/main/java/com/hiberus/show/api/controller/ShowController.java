@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.ResponseEntity;
 
-public interface ShowApiController {
+public interface ShowController {
 
     @ApiOperation(value = "Returns all shows stored in the database")
     @ApiResponses({

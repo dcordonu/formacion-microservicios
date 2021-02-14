@@ -4,7 +4,7 @@ import com.hiberus.show.api.domain.dto.ShowDto;
 
 import java.util.Optional;
 
-public interface ShowApiService {
+public interface ShowService {
 
     ShowDto[] retrieveAllShows();
 
