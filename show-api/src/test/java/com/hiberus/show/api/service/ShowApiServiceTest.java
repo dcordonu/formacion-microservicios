@@ -2,6 +2,7 @@ package com.hiberus.show.api.service;
 
 import com.hiberus.show.api.domain.dto.ShowDto;
 import com.hiberus.show.api.domain.entity.Show;
+import com.hiberus.show.api.mapper.ShowMapper;
 import com.hiberus.show.api.repository.ShowRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;

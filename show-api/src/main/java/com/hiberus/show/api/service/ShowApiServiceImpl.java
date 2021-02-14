@@ -1,14 +1,12 @@
 package com.hiberus.show.api.service;
 
-import com.hiberus.show.api.domain.dto.ReviewDto;
 import com.hiberus.show.api.domain.dto.ShowDto;
-import com.hiberus.show.api.domain.entity.Show;
+import com.hiberus.show.api.mapper.ShowMapper;
 import com.hiberus.show.api.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,34 +14,15 @@ import java.util.Optional;
 public class ShowApiServiceImpl implements ShowApiService {
 
     private final ShowRepository showRepository;
+    private final ShowMapper showMapper = Mappers.getMapper(ShowMapper.class);
 
     @Override
     public ShowDto[] retrieveAllShows() {
-        final List<Show> shows = showRepository.findAll();
-
-        return shows.stream().map(s -> ShowDto.builder()
-                .identifier(s.getIdentifier())
-                .title(s.getName())
-                .reviews(s.getReviews() != null ? Arrays.stream(s.getReviews()).map(r -> ReviewDto.builder()
-                        .rating(r.getRating())
-                        .comment(r.getComment())
-                        .build()).toArray(ReviewDto[]::new) : new ReviewDto[0])
-                .availablePlatforms(s.getAvailablePlatforms())
-                .build()).toArray(ShowDto[]::new);
+        return showRepository.findAll().stream().map(showMapper::mapShow).toArray(ShowDto[]::new);
     }
 
     @Override
     public Optional<ShowDto> retrieveShowByIdentifier(final String identifier) {
-        final Optional<Show> show = showRepository.findById(identifier);
-
-        return show.map(s -> ShowDto.builder()
-                .title(s.getName())
-                .availablePlatforms(s.getAvailablePlatforms())
-                .reviews(Arrays.stream(s.getReviews()).map(r -> ReviewDto.builder()
-                        .rating(r.getRating())
-                        .comment(r.getComment())
-                        .build()).toArray(ReviewDto[]::new))
-                .identifier(s.getIdentifier())
-        .build()).or(Optional::empty);
+        return showRepository.findById(identifier).map(showMapper::mapShow).or(Optional::empty);
     }
 }
