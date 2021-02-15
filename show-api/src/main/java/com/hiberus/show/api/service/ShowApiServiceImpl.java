@@ -23,6 +23,6 @@ public class ShowApiServiceImpl implements ShowApiService {
 
     @Override
     public Optional<ShowDto> retrieveShowByIdentifier(final String identifier) {
-        return showRepository.findById(identifier).map(showMapper::mapShow).or(Optional::empty);
+        return showRepository.findById(identifier).map(showMapper::mapShow);
     }
 }
