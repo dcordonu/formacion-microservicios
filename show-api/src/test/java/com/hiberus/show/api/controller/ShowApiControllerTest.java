@@ -57,8 +57,8 @@ public class ShowApiControllerTest {
                 .reviews(Collections.singletonList(ReviewDto.builder()
                         .comment("Good")
                         .rating(8)
-                        .build()).toArray(ReviewDto[]::new))
-                .build()).toArray(ShowDto[]::new));
+                        .build()).toArray(new ReviewDto[0]))
+                .build()).toArray(new ShowDto[0]));
         assertThat(showApiApiController.retrieveAllShows()).satisfies(r -> {
             assertThat(r.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(r.getBody()).hasSize(1);
