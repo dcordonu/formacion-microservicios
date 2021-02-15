@@ -60,6 +60,6 @@ public class ShowServiceImpl implements ShowService {
             }
 
             return new ShowDto(s.getIdentifier(), s.getName(), s.getAvailablePlatforms(), reviewDtos);
-        }).or(Optional::empty);
+        });
     }
 }
