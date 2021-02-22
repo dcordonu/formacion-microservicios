@@ -1,0 +1,8 @@
+{
+  "type": "record",
+  "namespace": "com.hiberus.show.library",
+  "name": "ShowKey",
+  "fields": [
+    { "name": "isan", "type": "string" }
+  ]
+}

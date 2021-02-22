@@ -1,0 +1,8 @@
+{
+  "type": "record",
+  "namespace": "com.hiberus.show.library",
+  "name": "PlatformListEvent",
+  "fields": [
+    { "name":  "platforms", "type":  { "type": "array", "items": "string" } }
+  ]
+}

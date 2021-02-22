@@ -14,11 +14,40 @@ Repositorio para la formación en microservicios para el equipo ECI.
 docker run -d --name shows-database -p 27017:27017 mongo
 ```
 
-### Insert Data into MongoDB collection
+### Sample data for MongoDB
 
+*Database*: shows
+*Collection*: shows
+
+Sample data:
+
+```json
+[{
+  "name": "Passengers",
+  "availablePlatforms": ["Netflix"],
+  "reviews": [{
+    "rating": 8,
+    "comment": "Ciencia ficción pura de la buena. Muy recomendable."
+  }]
+},{
+  "name": "Tron",
+  "availablePlatforms": ["Disney+"]
+},{
+  "name": "Tenet",
+  "availablePlatforms" : ["Filmin", "HBO"]
+}]
 ```
-use shows
-db.shows.insertMany([{"name": "Passengers", "availablePlatforms": ["Netflix"], "reviews": [{"rating": 8, "comment": "Ciencia ficción pura de la buena. Muy recomendable."}]}, {"name": "Tron", "availablePlatforms": ["Disney+"]}, {"name": "Tenet", "availablePlatforms" : ["Filmin", "HBO"]}])
+
+### Configure Kafka with Docker
+
+```bash
+docker network create shows
+```
+
+Create alias:
+
+```bash
+alias startShowKafka='docker-compose -f /path/to/infraestructure.yml up -d'
 ```
 
 ## Topics covered

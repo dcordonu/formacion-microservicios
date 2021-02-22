@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: show-mixer
+  cloud:
+    stream:
+      bindings:
+        shows:
+          content-type: application/avro
+          destination: show-mixer-input-shows
+          consumer:
+            concurrency: 1
+            useNativeDecoding: true
+        platforms:
+          content-type: application/avro
+          destination: show-mixer-input-platforms
+          consumer:
+            concurrency: 1
+            useNativeDecoding: true
+        output:
+          content-type: application/avro
+          destination: show-mixer-output
+          producer:
+            useNativeEncoding: true
+      kafka:
+        streams:
+          bindings:
+            shows:
+              consumer:
+                keySerde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+                valueSerde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+                applicationId: ${spring.application.name}
+            platforms:
+              consumer:
+                keySerde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+                valueSerde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+                applicationId: ${spring.application.name}
+          binder:
+            configuration:
+              state.dir: /tmp
+              commit.interval.ms: 100
+              topology.optimization: all
+              session.timeout.ms: 10000
+              schema.registry.url: http://localhost:8081
+              auto.register.schemas: true
+              default.key.serde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+              default.value.serde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+server:
+  port: 8080
+
+logging:
+  level:
+    ROOT: INFO
+    io.confluent.kafka: ERROR
+    org.apache.afka: ERROR

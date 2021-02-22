@@ -1,0 +1,9 @@
+{
+  "type": "record",
+  "namespace": "com.hiberus.show.library",
+  "name": "InputShowEvent",
+  "fields": [
+    { "name": "name", "type": "string" },
+    { "name": "isan", "type": "string" }
+  ]
+}

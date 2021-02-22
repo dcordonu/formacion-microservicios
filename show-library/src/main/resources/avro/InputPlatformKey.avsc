@@ -1,0 +1,8 @@
+{
+  "type": "record",
+  "namespace": "com.hiberus.show.library",
+  "name": "InputPlatformKey",
+  "fields": [
+    { "name": "id", "type": "string" }
+  ]
+}

@@ -16,12 +16,18 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <avro.version>1.10.1</avro.version>
         <java.version>1.8</java.version>
-        <swagger.version>2.9.2</swagger.version>
+        <kafka.streams.avro.serde>5.5.0</kafka.streams.avro.serde>
+        <lombok.mapstruct.binding>0.2.0</lombok.mapstruct.binding>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.cloud.stream.schema.version>2.2.1.RELEASE</spring.cloud.stream.schema.version>
+        <spring.cloud.starter.stream.kafka.version>3.0.4.RELEASE</spring.cloud.starter.stream.kafka.version>
+        <swagger.version>2.9.2</swagger.version>
     </properties>
 
+    <!-- Dependencies every service should have -->
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -59,6 +65,41 @@
         </dependency>
     </dependencies>
 
+    <!-- Define extra dependencies for Kafka users -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-stream-kafka</artifactId>
+                <version>${spring.cloud.starter.stream.kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-stream-binder-kafka-streams</artifactId>
+                <version>${spring.cloud.starter.stream.kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-streams-avro-serde</artifactId>
+                <version>${kafka.streams.avro.serde}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.avro</groupId>
+                        <artifactId>avro</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <name>confluent</name>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
@@ -89,13 +130,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <configuration>
-                            <mainClass>com.hiberus.show.api.ShowApiApplication</mainClass>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
