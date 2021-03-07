@@ -1,49 +1,25 @@
 package com.hiberus.show.api.domain.entity;
 
+import lombok.Builder;
+import lombok.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Arrays;
-
+@Value
+@Builder
 @Document(collection = "shows")
 public class Show {
 
     @Id
-    private final String identifier;
-    private final String name;
-    private final String[] availablePlatforms;
-    private final Review[] reviews;
+    String identifier;
+    String name;
+    String[] availablePlatforms;
+    Review[] reviews;
 
-    public Show(final String identifier, final String name, final String[] availablePlatforms, final Review[] reviews) {
+    Show(String identifier, String name, String[] availablePlatforms, Review[] reviews) {
         this.identifier = identifier;
         this.name = name;
-        this.availablePlatforms = availablePlatforms;
-        this.reviews = reviews;
-    }
-
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String[] getAvailablePlatforms() {
-        return availablePlatforms;
-    }
-
-    public Review[] getReviews() {
-        return reviews;
-    }
-
-    @Override
-    public String toString() {
-        return "Show{" +
-                "identifier='" + identifier + '\'' +
-                ", name='" + name + '\'' +
-                ", availablePlatforms=" + Arrays.toString(availablePlatforms) +
-                ", reviews=" + Arrays.toString(reviews) +
-                '}';
+        this.availablePlatforms = availablePlatforms != null ? availablePlatforms : new String[0];
+        this.reviews = reviews != null ? reviews : new Review[0];
     }
 }
