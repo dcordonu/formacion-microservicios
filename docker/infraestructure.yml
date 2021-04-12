@@ -12,7 +12,6 @@ services:
 
   kafka:
     image: confluentinc/cp-enterprise-kafka:5.3.1
-    hostname: kafka
     container_name: shows-kafka
     depends_on:
       - zookeeper
@@ -21,8 +20,8 @@ services:
     environment:
       KAFKA_HEAP_OPTS: -Xmx3G -Xms1G
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_DELETE_TOPIC_ENABLE: "true"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
@@ -35,8 +34,8 @@ services:
       CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092
       CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-      CONFLUENT_METRICS_ENABLE: 'true'
-      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+      CONFLUENT_METRICS_ENABLE: "true"
+      CONFLUENT_SUPPORT_CUSTOMER_ID: "anonymous"
 
   schema-registry:
     image: confluentinc/cp-schema-registry:5.3.1
@@ -49,27 +48,34 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
     depends_on:
       - kafka
-      - zookeeper
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:5.3.1
-    hostname: control-center
     container_name: shows-control-center
     depends_on:
-      - zookeeper
-      - kafka
       - schema-registry
     ports:
       - "9021:9021"
     environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'kafka:29092'
-      CONTROL_CENTER_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: "kafka:29092"
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: "zookeeper:2181"
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
+
+  mongo:
+    image: mongo
+    container_name: shows-database
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo:/data/db
+
+volumes:
+  mongo:
 
 networks:
   default:

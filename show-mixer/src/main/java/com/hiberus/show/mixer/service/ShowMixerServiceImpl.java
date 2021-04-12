@@ -4,11 +4,9 @@ import com.hiberus.show.library.InputPlatformEvent;
 import com.hiberus.show.library.InputPlatformKey;
 import com.hiberus.show.library.InputShowEvent;
 import com.hiberus.show.library.InputShowKey;
+import com.hiberus.show.library.OutputShowPlatformKey;
+import com.hiberus.show.library.OutputShowPlatformListEvent;
 import com.hiberus.show.library.PlatformListEvent;
-import com.hiberus.show.library.ShowKey;
-import com.hiberus.show.library.ShowPlatformEvent;
-import com.hiberus.show.library.ShowPlatformListEvent;
-import com.hiberus.show.mixer.lambda.PlatformListEventMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.kstream.KStream;
@@ -24,21 +22,20 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class ShowMixerServiceImpl implements ShowMixerService {
 
-    private final PlatformListEventMapper platformListEventMapper;
-
     @Override
-    public KStream<ShowKey, ShowPlatformEvent> process(
+    public KStream<OutputShowPlatformKey, OutputShowPlatformListEvent> process(
             final KStream<InputShowKey, InputShowEvent> shows,
             final KStream<InputPlatformKey, InputPlatformEvent> platforms) {
-        final KTable<ShowKey, InputShowEvent> showsTable = shows
-                .peek((k, show) -> log.info("Show received: {}", show))
-                .selectKey((inputShowKey, inputShowEvent) -> ShowKey.newBuilder().setIsan(inputShowEvent.getIsan()).build())
-                .groupByKey()
-                .reduce((previous, current) -> current, Materialized.as("ktable-shows"));
 
-        final KTable<ShowKey, PlatformListEvent> platformsTable = platforms
+        final KTable<OutputShowPlatformKey, InputShowEvent> showsTable = shows
+                .peek((k, show) -> log.info("Show received: {}", show))
+                .selectKey((inputShowKey, inputShowEvent) -> OutputShowPlatformKey.newBuilder().setIsan(inputShowEvent.getIsan()).build())
+                .groupByKey()
+                .reduce((previous, current) -> current, Materialized.as("ktable-shows-reduce"));
+
+        final KTable<OutputShowPlatformKey, PlatformListEvent> platformsTable = platforms
                 .peek((k, platform) -> log.info("Platform association received: {}", platform))
-                .selectKey((inputPlatformKey, inputPlatformEvent) -> ShowKey.newBuilder().setIsan(inputPlatformEvent.getIsan()).build())
+                .selectKey((inputPlatformKey, inputPlatformEvent) -> OutputShowPlatformKey.newBuilder().setIsan(inputPlatformEvent.getIsan()).build())
                 .groupByKey()
                 .aggregate(this::initPlatformListEvent, (showKey, inputPlatformEvent, aggregate) -> {
                     aggregate.getPlatforms().add(inputPlatformEvent.getPlatform());
@@ -56,11 +53,12 @@ public class ShowMixerServiceImpl implements ShowMixerService {
                 }, Named.as("ktable-platforms"), Materialized.as("ktable-platforms-agg"));
 
         return showsTable.join(platformsTable, (inputShowEvent, platformListEvent) ->
-                ShowPlatformListEvent.newBuilder()
-                        .setName(inputShowEvent.getName()).setPlatforms(platformListEvent.getPlatforms()).build())
+                OutputShowPlatformListEvent.newBuilder()
+                        .setName(inputShowEvent.getName())
+                        .setPlatforms(platformListEvent.getPlatforms())
+                        .build())
                 .toStream()
-                .peek((k, showPlatformListEvent) -> log.info("About to expand {} into {} messages", showPlatformListEvent, showPlatformListEvent.getPlatforms().size()))
-                .flatMap(platformListEventMapper);
+                .peek((k, showPlatformListEvent) -> log.info("Sent message {} to output channel", showPlatformListEvent));
     }
 
     private PlatformListEvent initPlatformListEvent() {

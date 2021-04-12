@@ -65,7 +65,7 @@
         </dependency>
     </dependencies>
 
-    <!-- Define extra dependencies for Kafka users -->
+    <!-- Define extra dependencies -->
     <dependencyManagement>
         <dependencies>
             <dependency>

@@ -1,8 +1,0 @@
-{
-  "type": "record",
-  "namespace": "com.hiberus.show.library",
-  "name": "ShowPlatformKey",
-  "fields": [
-    { "name": "isan", "type": "string" }
-  ]
-}
