@@ -44,8 +44,10 @@ spring:
               auto.register.schemas: true
               default.key.serde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
               default.value.serde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+            min-partition-count: 8
+            replication-factor: 1
 server:
-  port: 8080
+  port: 0
 
 logging:
   level:

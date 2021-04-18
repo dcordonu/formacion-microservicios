@@ -40,9 +40,7 @@ public class ShowMixerServiceImpl implements ShowMixerService {
                 .aggregate(this::initPlatformListEvent, (showKey, inputPlatformEvent, aggregate) -> {
                     aggregate.getPlatforms().add(inputPlatformEvent.getPlatform());
 
-                    // TODO preguntar y "poner como ejercicio" para evitar añadir la misma plataforma varias veces. Es
-                    // TODO decir, evitar un ["HBO", "HBO", "Netflix"]
-
+                    // TODO preguntar por qué saca duplicados
                     /*
                     if (!aggregate.getPlatforms().contains(inputPlatformEvent.getPlatform())) {
                         aggregate.getPlatforms().add(inputPlatformEvent.getPlatform());
@@ -52,10 +50,10 @@ public class ShowMixerServiceImpl implements ShowMixerService {
                     return aggregate;
                 }, Named.as("ktable-platforms"), Materialized.as("ktable-platforms-agg"));
 
-        return showsTable.join(platformsTable, (inputShowEvent, platformListEvent) ->
+        return showsTable.leftJoin(platformsTable, (inputShowEvent, platformListEvent) ->
                 OutputShowPlatformListEvent.newBuilder()
                         .setName(inputShowEvent.getName())
-                        .setPlatforms(platformListEvent.getPlatforms())
+                        .setPlatforms(platformListEvent != null ? platformListEvent.getPlatforms() : new ArrayList<>())
                         .build())
                 .toStream()
                 .peek((k, showPlatformListEvent) -> log.info("Sent message {} to output channel", showPlatformListEvent));

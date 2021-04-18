@@ -19,18 +19,20 @@ import java.util.Map;
 @Slf4j
 public class KafkaManager {
 
+    private KafkaManager() { }
+
     private static final String CONSUMER_ID = "show-test";
     private static final Object SERIALIZER = SpecificAvroSerializer.class;
     private static final Object DESERIALIZER = SpecificAvroDeserializer.class;
-    private final static String BOOTSTRAP_SERVERS = "localhost:9092";
+    private static final String BOOTSTRAP_SERVERS = "localhost:9092";
     private static final String SCHEMA_REGISTRY_URL = "http://localhost:8081";
 
-    private final Map<String, KafkaTemplate<Object, Object>> producerTemplates = new HashMap<>();
+    private static final Map<String, KafkaTemplate<Object, Object>> producerTemplates = new HashMap<>();
 
-    private final Map<String, Object> producerProperties = new HashMap<>();
-    private final Map<String, Object> consumerProperties = new HashMap<>();
+    private static final Map<String, Object> producerProperties = new HashMap<>();
+    private static final Map<String, Object> consumerProperties = new HashMap<>();
 
-    {
+    static {
         producerProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, SERIALIZER);
         producerProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, SERIALIZER);
         producerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
@@ -44,15 +46,14 @@ public class KafkaManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <K, V> void sendRecords(final String topic, final K key, final V event) {
-        this.producerTemplates.putIfAbsent(topic, buildProducerFactory());
-        final KafkaTemplate<K, V> kafkaTemplate = (KafkaTemplate<K, V>) this.producerTemplates.get(topic);
+    public static <K, V> void sendRecords(final String topic, final K key, final V event) {
+        producerTemplates.putIfAbsent(topic, buildProducerFactory());
+        final KafkaTemplate<K, V> kafkaTemplate = (KafkaTemplate<K, V>) producerTemplates.get(topic);
         kafkaTemplate.send(topic, key, event);
         log.info("Sent message {} to topic {}", event, topic);
     }
 
-    @SuppressWarnings("unchecked")
-    public <K, V> ConsumerRecords<K, V> receiveRecords(final String topic, final int seconds) {
+    public static <K, V> ConsumerRecords<K, V> receiveRecords(final String topic, final int seconds) {
         final KafkaConsumer<K, V> consumer = buildConsumer(topic);
 
         final ConsumerRecords<K, V> records = consumer.poll(Duration.ofSeconds(seconds));
@@ -61,7 +62,7 @@ public class KafkaManager {
         return records;
     }
 
-    private <K, V> KafkaConsumer<K, V> buildConsumer(final String topic) {
+    private static <K, V> KafkaConsumer<K, V> buildConsumer(final String topic) {
         final KafkaConsumer<K, V> kafkaConsumer = new KafkaConsumer<>(consumerProperties);
         kafkaConsumer.subscribe(Collections.singletonList(topic));
 
@@ -73,7 +74,7 @@ public class KafkaManager {
         return kafkaConsumer;
     }
 
-    private <K, V> KafkaTemplate<K, V> buildProducerFactory() {
+    private static <K, V> KafkaTemplate<K, V> buildProducerFactory() {
         final ProducerFactory<K, V> producerFactory = new DefaultKafkaProducerFactory<>(producerProperties);
         return new KafkaTemplate<>(producerFactory, true);
     }

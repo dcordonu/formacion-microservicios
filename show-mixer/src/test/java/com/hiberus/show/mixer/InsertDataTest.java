@@ -7,52 +7,67 @@ import com.hiberus.show.library.InputShowEvent;
 import com.hiberus.show.library.InputShowKey;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @Slf4j
-@ActiveProfiles("test")
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = ShowMixerApplication.class)
 public class InsertDataTest {
 
-    private static final String SHOW = "Tenet";
+    private static final String SHOW = "Firefly";
+    //private static final String SHOW = "Tenet";
+
     //private static final String PLATFORM = "Filmin";
     private static final String PLATFORM = "HBO";
 
-    @Value("${spring.cloud.stream.bindings.shows.destination}")
-    private String showsTopic;
-
-    @Value("${spring.cloud.stream.bindings.platforms.destination}")
-    private String platformsTopic;
-
-    @Value("${spring.cloud.stream.bindings.output.destination}")
-    private String outputTopic;
-
-    private final KafkaManager kafkaManager = new KafkaManager();
+    private static final String SHOWS_TOPIC = "show-mixer-input-shows";
+    private static final String PLATFORMS_TOPIC = "show-mixer-input-platforms";
+    private static final String OUTPUT_TOPIC = "show-mixer-output";
 
     @Test
     public void receiveData() {
-        kafkaManager.receiveRecords(outputTopic, 1);
+        KafkaManager.receiveRecords(OUTPUT_TOPIC, 1);
     }
 
     @Test
-    public void insertPlatform() {
+    public void addPlatform() {
         final InputPlatformKey inputPlatformKey = InputPlatformKey.newBuilder().setId(generateId(PLATFORM)).build();
-        final InputPlatformEvent inputPlatformEvent = InputPlatformEvent.newBuilder().setIsan(generateISAN()).setPlatform(PLATFORM).build();
+        final InputPlatformEvent inputPlatformEvent = InputPlatformEvent.newBuilder()
+                .setIsan(generateISAN())
+                .setPlatform(PLATFORM)
+                .build();
 
-        kafkaManager.sendRecords(platformsTopic, inputPlatformKey, inputPlatformEvent);
+        KafkaManager.sendRecords(PLATFORMS_TOPIC, inputPlatformKey, inputPlatformEvent);
     }
 
     @Test
-    public void insertShow() {
+    public void addShow() {
         final InputShowKey inputShowKey = InputShowKey.newBuilder().setId(generateId(SHOW)).build();
-        final InputShowEvent inputShowEvent = InputShowEvent.newBuilder().setName(SHOW).setIsan(generateISAN()).build();
+        final InputShowEvent inputShowEvent = InputShowEvent.newBuilder()
+                .setName(SHOW)
+                .setIsan(generateISAN())
+                .build();
 
-        kafkaManager.sendRecords(showsTopic, inputShowKey, inputShowEvent);
+        KafkaManager.sendRecords(SHOWS_TOPIC, inputShowKey, inputShowEvent);
+    }
+
+    @Test
+    public void updateShow() {
+        final InputShowKey inputShowKey = InputShowKey.newBuilder().setId(generateId(SHOW)).build();
+        final InputShowEvent inputShowEvent = InputShowEvent.newBuilder()
+                .setName(SHOW + " (dCut)")
+                .setIsan(generateISAN())
+                .build();
+
+        KafkaManager.sendRecords(SHOWS_TOPIC, inputShowKey, inputShowEvent);
+    }
+
+    @Test
+    public void deletePlatform() {
+        final InputPlatformKey inputPlatformKey = InputPlatformKey.newBuilder().setId(generateId(PLATFORM)).build();
+        final InputPlatformEvent inputPlatformEvent = InputPlatformEvent.newBuilder()
+                .setIsan(generateISAN())
+                .setPlatform(PLATFORM)
+                .build();
+
+        KafkaManager.sendRecords(PLATFORMS_TOPIC, inputPlatformKey, inputPlatformEvent);
     }
 
     private String generateISAN() {

@@ -1,4 +1,0 @@
-logging:
-  level:
-    ROOT: ERROR
-    com.hiberus.show: INFO
