@@ -17,6 +17,7 @@
 
     <properties>
         <avro.version>1.10.1</avro.version>
+        <awaitility.version>4.0.3</awaitility.version>
         <java.version>1.8</java.version>
         <kafka.streams.avro.serde>5.5.0</kafka.streams.avro.serde>
         <lombok.mapstruct.binding>0.2.0</lombok.mapstruct.binding>
@@ -88,6 +89,12 @@
                         <artifactId>avro</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

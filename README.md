@@ -32,26 +32,8 @@ Borrar entorno:
 docker-compose -f /path/to/infraestructure.yml down
 ```
 
-### Sample data for MongoDB
+## Topología
 
-*Database*: shows
-*Collection*: shows
+### show-mixer
 
-Sample data:
-
-```json
-[{
-  "name": "Passengers",
-  "availablePlatforms": ["Netflix"],
-  "reviews": [{
-    "rating": 8,
-    "comment": "Ciencia ficción pura de la buena. Muy recomendable."
-  }]
-},{
-  "name": "Tron",
-  "availablePlatforms": ["Disney+"]
-},{
-  "name": "Tenet",
-  "availablePlatforms" : ["Filmin", "HBO"]
-}]
-```
+![Topología](topology.png)

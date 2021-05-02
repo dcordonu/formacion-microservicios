@@ -5,73 +5,82 @@ import com.hiberus.show.library.InputPlatformEvent;
 import com.hiberus.show.library.InputPlatformKey;
 import com.hiberus.show.library.InputShowEvent;
 import com.hiberus.show.library.InputShowKey;
-import lombok.extern.slf4j.Slf4j;
+import com.hiberus.show.library.OutputShowPlatformListEvent;
+import com.hiberus.show.library.OutputShowPlatformListKey;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-@Slf4j
+import java.time.Duration;
+
 public class InsertDataTest {
 
     private static final String SHOW = "Firefly";
     //private static final String SHOW = "Tenet";
 
-    //private static final String PLATFORM = "Filmin";
-    private static final String PLATFORM = "HBO";
+    private static final String PLATFORM = "Filmin";
+    //private static final String PLATFORM = "HBO";
 
     private static final String SHOWS_TOPIC = "show-mixer-input-shows";
     private static final String PLATFORMS_TOPIC = "show-mixer-input-platforms";
     private static final String OUTPUT_TOPIC = "show-mixer-output";
 
-    @Test
-    public void receiveData() {
-        KafkaManager.receiveRecords(OUTPUT_TOPIC, 1);
+    @Before
+    public void init() {
+        KafkaManager.initConsumers(OUTPUT_TOPIC);
     }
 
     @Test
-    public void addPlatform() {
-        final InputPlatformKey inputPlatformKey = InputPlatformKey.newBuilder().setId(generateId(PLATFORM)).build();
-        final InputPlatformEvent inputPlatformEvent = InputPlatformEvent.newBuilder()
-                .setIsan(generateISAN())
-                .setPlatform(PLATFORM)
-                .build();
+    public void testHappyPath() {
+        final String show = "Brave";
+        final String platform = "HBO";
 
-        KafkaManager.sendRecords(PLATFORMS_TOPIC, inputPlatformKey, inputPlatformEvent);
+        addShow(show);
+        addPlatform(show, platform);
+
+        final ConsumerRecords<OutputShowPlatformListKey, OutputShowPlatformListEvent> records =
+                KafkaManager.receiveRecords(OUTPUT_TOPIC, Duration.ofSeconds(2));
+
+        Assert.assertEquals(1, records.count());
     }
 
     @Test
     public void addShow() {
-        final InputShowKey inputShowKey = InputShowKey.newBuilder().setId(generateId(SHOW)).build();
-        final InputShowEvent inputShowEvent = InputShowEvent.newBuilder()
-                .setName(SHOW)
-                .setIsan(generateISAN())
-                .build();
-
-        KafkaManager.sendRecords(SHOWS_TOPIC, inputShowKey, inputShowEvent);
+        addShow(SHOW);
     }
 
     @Test
-    public void updateShow() {
-        final InputShowKey inputShowKey = InputShowKey.newBuilder().setId(generateId(SHOW)).build();
-        final InputShowEvent inputShowEvent = InputShowEvent.newBuilder()
-                .setName(SHOW + " (dCut)")
-                .setIsan(generateISAN())
-                .build();
-
-        KafkaManager.sendRecords(SHOWS_TOPIC, inputShowKey, inputShowEvent);
+    public void addPlatform() {
+        addPlatform(SHOW, PLATFORM);
     }
 
-    @Test
-    public void deletePlatform() {
-        final InputPlatformKey inputPlatformKey = InputPlatformKey.newBuilder().setId(generateId(PLATFORM)).build();
+    private void addShow(final String show) {
+        final InputShowKey inputShowKey = InputShowKey.newBuilder()
+                .setId(generateId(show))
+                .build();
+        final InputShowEvent inputShowEvent = InputShowEvent.newBuilder()
+                .setName(show)
+                .setIsan(generateISAN(show))
+                .build();
+
+        KafkaManager.sendRecord(SHOWS_TOPIC, inputShowKey, inputShowEvent);
+    }
+
+    private void addPlatform(final String show, final String platform) {
+        final InputPlatformKey inputPlatformKey = InputPlatformKey.newBuilder()
+                .setId(generateId(platform))
+                .build();
         final InputPlatformEvent inputPlatformEvent = InputPlatformEvent.newBuilder()
-                .setIsan(generateISAN())
-                .setPlatform(PLATFORM)
+                .setPlatform(platform)
+                .setIsan(generateISAN(show))
                 .build();
 
-        KafkaManager.sendRecords(PLATFORMS_TOPIC, inputPlatformKey, inputPlatformEvent);
+        KafkaManager.sendRecord(PLATFORMS_TOPIC, inputPlatformKey, inputPlatformEvent);
     }
 
-    private String generateISAN() {
-        return Integer.toString(Math.abs(SHOW.hashCode()));
+    private String generateISAN(final String show) {
+        return Integer.toString(Math.abs(show.hashCode()));
     }
 
     private String generateId(final String text) {
