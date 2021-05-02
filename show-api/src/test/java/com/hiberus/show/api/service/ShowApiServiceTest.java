@@ -2,8 +2,7 @@ package com.hiberus.show.api.service;
 
 import com.hiberus.show.api.domain.dto.ShowDto;
 import com.hiberus.show.api.domain.entity.Show;
-import com.hiberus.show.api.mapper.ShowMapper;
-import com.hiberus.show.api.repository.ShowRepository;
+import com.hiberus.show.api.repository.ShowApiRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -21,40 +20,40 @@ import static org.mockito.Mockito.when;
 public class ShowApiServiceTest {
 
     @Mock
-    private ShowRepository showRepository;
+    private ShowApiRepository showApiRepository;
 
     @InjectMocks
-    private ShowApiServiceImpl showService;
+    private ShowApiServiceImpl showApiService;
 
     @Test
     public void testRetrieveAllShows() {
-        when(showRepository.findAll()).thenReturn(new ArrayList<>());
-        assertThat(showService.retrieveAllShows()).isEmpty();
+        when(showApiRepository.findAll()).thenReturn(new ArrayList<>());
+        assertThat(showApiService.retrieveAllShows()).isEmpty();
 
-        when(showRepository.findAll()).thenReturn(Collections.singletonList(Show.builder()
+        when(showApiRepository.findAll()).thenReturn(Collections.singletonList(Show.builder()
                 .availablePlatforms(Collections.singletonList("HBO").toArray(new String[0]))
                 .identifier("1")
                 .name("Tenet")
                 .build()));
-        assertThat(showService.retrieveAllShows().length).isEqualTo(1);
+        assertThat(showApiService.retrieveAllShows().length).isEqualTo(1);
     }
 
     @Test
     public void testRetrieveShowById() {
-        when(showRepository.findById("1")).thenReturn(Optional.of(Show.builder()
+        when(showApiRepository.findById("1")).thenReturn(Optional.of(Show.builder()
                 .availablePlatforms(Collections.singletonList("HBO").toArray(new String[0]))
                 .identifier("1")
                 .name("Tenet")
                 .reviews(null)
                 .build()));
-        when(showRepository.findById("2")).thenReturn(Optional.empty());
+        when(showApiRepository.findById("2")).thenReturn(Optional.empty());
 
-        assertThat(showService.retrieveShowByIdentifier("1")).isPresent();
-        assertThat(showService.retrieveShowByIdentifier("1")).get().isEqualTo(ShowDto.builder()
+        assertThat(showApiService.retrieveShowByIdentifier("1")).isPresent();
+        assertThat(showApiService.retrieveShowByIdentifier("1")).get().isEqualTo(ShowDto.builder()
                 .availablePlatforms(Collections.singletonList("HBO").toArray(new String[0]))
                 .identifier("1")
                 .title("Tenet")
                 .build());
-        assertThat(showService.retrieveShowByIdentifier("2")).isEmpty();
+        assertThat(showApiService.retrieveShowByIdentifier("2")).isEmpty();
     }
 }

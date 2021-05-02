@@ -7,4 +7,4 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ShowRepository extends MongoRepository<Show, String> { }
+public interface ShowApiRepository extends MongoRepository<Show, String> { }
