@@ -58,20 +58,26 @@ public class KafkaManager {
     @SuppressWarnings("unchecked")
     public static <K, V> void initConsumers(final String... topics) {
         for (String topic : topics) {
-            final KafkaConsumer<K, V> consumer = buildConsumer();
+            if (consumers.get(topic) == null) {
+                final KafkaConsumer<K, V> consumer = buildConsumer();
 
-            consumer.subscribe(Collections.singletonList(topic));
+                consumer.subscribe(Collections.singletonList(topic));
 
-            try {
-                await().atMost(Duration.ofSeconds(5)).until(() -> !consumer.assignment().isEmpty());
-            } catch (final ConditionTimeoutException e) {
-                log.error("Could not assign partitions for consumer in topic {}", topic);
-                throw new RuntimeException();
+                try {
+                    await().atMost(Duration.ofSeconds(5)).until(() -> {
+                        consumer.seekToEnd(Collections.emptyList());
+                        consumer.poll(Duration.ofMillis(100));
+                        return !consumer.assignment().isEmpty();
+                    });
+                } catch (final ConditionTimeoutException e) {
+                    log.error("Could not assign partitions for consumer in topic {}", topic);
+                    throw new RuntimeException();
+                }
+
+                consumers.put(topic, (KafkaConsumer<Object, Object>) consumer);
+            } else {
+                consumers.get(topic).seekToEnd(Collections.emptyList());
             }
-
-            consumer.seekToEnd(consumer.assignment());
-
-            consumers.put(topic, (KafkaConsumer<Object, Object>) consumer);
         }
     }
 
@@ -81,7 +87,6 @@ public class KafkaManager {
         final ConsumerRecords<K, V> records = consumer.poll(waitUntil);
 
         consumer.commitSync();
-        consumer.close();
 
         return records;
     }

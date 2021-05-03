@@ -19,8 +19,9 @@ public class InsertDataTest {
     private static final String SHOW = "Firefly";
     //private static final String SHOW = "Tenet";
 
-    private static final String PLATFORM = "Filmin";
+    //private static final String PLATFORM = "Filmin";
     //private static final String PLATFORM = "HBO";
+    private static final String PLATFORM = "Netflix";
 
     private static final String SHOWS_TOPIC = "show-mixer-input-shows";
     private static final String PLATFORMS_TOPIC = "show-mixer-input-platforms";
@@ -33,8 +34,8 @@ public class InsertDataTest {
 
     @Test
     public void testHappyPath() {
-        final String show = "Brave";
-        final String platform = "HBO";
+        final String show = "Tenet";
+        final String platform = "Netflix";
 
         addShow(show);
         addPlatform(show, platform);
@@ -42,7 +43,7 @@ public class InsertDataTest {
         final ConsumerRecords<OutputShowPlatformListKey, OutputShowPlatformListEvent> records =
                 KafkaManager.receiveRecords(OUTPUT_TOPIC, Duration.ofSeconds(2));
 
-        Assert.assertEquals(1, records.count());
+        Assert.assertEquals(2, records.count());
     }
 
     @Test

@@ -7,6 +7,13 @@ import com.hiberus.show.library.InputShowKey;
 import com.hiberus.show.library.OutputShowPlatformListEvent;
 import com.hiberus.show.library.OutputShowPlatformListKey;
 import com.hiberus.show.library.PlatformListEvent;
+import com.hiberus.show.mixer.topology.InputPlatformKeyMapper;
+import com.hiberus.show.mixer.topology.InputShowKeyMapper;
+import com.hiberus.show.mixer.topology.PlatformListAggregator;
+import com.hiberus.show.mixer.topology.PlatformListFilter;
+import com.hiberus.show.mixer.topology.ShowFilter;
+import com.hiberus.show.mixer.topology.ShowPlatformListValueJoiner;
+import com.hiberus.show.mixer.topology.ShowReducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.kstream.KStream;
@@ -22,6 +29,17 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class ShowMixerServiceImpl implements ShowMixerService {
 
+    public static final String SHOW_TABLE = "ktable-shows-reduce";
+    public static final String PLATFORM_TABLE = "ktable-platforms-agg";
+
+    private final ShowReducer showReducer;
+    private final InputShowKeyMapper inputShowKeyMapper;
+    private final InputPlatformKeyMapper inputPlatformKeyMapper;
+    private final PlatformListAggregator platformListAggregator;
+    private final ShowPlatformListValueJoiner showPlatformListValueJoiner;
+    private final ShowFilter showFilter;
+    private final PlatformListFilter platformListFilter;
+
     @Override
     public KStream<OutputShowPlatformListKey, OutputShowPlatformListEvent> process(
             final KStream<InputShowKey, InputShowEvent> shows,
@@ -29,32 +47,20 @@ public class ShowMixerServiceImpl implements ShowMixerService {
 
         final KTable<OutputShowPlatformListKey, InputShowEvent> showsTable = shows
                 .peek((k, show) -> log.info("Show received: {}", show))
-                .selectKey((inputShowKey, inputShowEvent) -> OutputShowPlatformListKey.newBuilder().setIsan(inputShowEvent.getIsan()).build())
+                .selectKey(inputShowKeyMapper)
+                .filter(showFilter)
                 .groupByKey()
-                .reduce((previous, current) -> current, Materialized.as("ktable-shows-reduce"));
+                .reduce(showReducer, Named.as(SHOW_TABLE), Materialized.as(SHOW_TABLE));
 
         final KTable<OutputShowPlatformListKey, PlatformListEvent> platformsTable = platforms
                 .peek((k, platform) -> log.info("Platform association received: {}", platform))
-                .selectKey((inputPlatformKey, inputPlatformEvent) -> OutputShowPlatformListKey.newBuilder().setIsan(inputPlatformEvent.getIsan()).build())
+                .selectKey(inputPlatformKeyMapper)
+                .filter(platformListFilter)
                 .groupByKey()
-                .aggregate(this::initPlatformListEvent, (showKey, inputPlatformEvent, aggregate) -> {
-                    if (!aggregate.getPlatforms().contains(inputPlatformEvent.getPlatform())) {
-                        aggregate.getPlatforms().add(inputPlatformEvent.getPlatform());
-                    }
+                .aggregate(platformListAggregator, platformListAggregator, Named.as(PLATFORM_TABLE), Materialized.as(PLATFORM_TABLE));
 
-                    return aggregate;
-                }, Named.as("ktable-platforms"), Materialized.as("ktable-platforms-agg"));
-
-        return showsTable.leftJoin(platformsTable, (inputShowEvent, platformListEvent) ->
-                OutputShowPlatformListEvent.newBuilder()
-                        .setName(inputShowEvent.getName())
-                        .setPlatforms(platformListEvent != null ? platformListEvent.getPlatforms() : new ArrayList<>())
-                        .build())
+        return showsTable.leftJoin(platformsTable, showPlatformListValueJoiner)
                 .toStream()
                 .peek((k, showPlatformListEvent) -> log.info("Sent message {} to output channel", showPlatformListEvent));
-    }
-
-    private PlatformListEvent initPlatformListEvent() {
-        return PlatformListEvent.newBuilder().setPlatforms(new ArrayList<>()).build();
     }
 }
