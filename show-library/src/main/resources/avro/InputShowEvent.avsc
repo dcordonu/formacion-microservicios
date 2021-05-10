@@ -3,7 +3,26 @@
   "namespace": "com.hiberus.show.library",
   "name": "InputShowEvent",
   "fields": [
-    { "name": "name", "type": "string" },
-    { "name": "isan", "type": "string" }
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "isan",
+      "type": "string"
+    },
+    {
+      "name": "eventType",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "namespace": "com.hiberus.show.library",
+        "symbols": [
+          "CREATE",
+          "UPDATE",
+          "DELETE"
+        ]
+      }
+    }
   ]
 }

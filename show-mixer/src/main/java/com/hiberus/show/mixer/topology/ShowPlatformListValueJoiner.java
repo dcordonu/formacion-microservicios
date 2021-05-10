@@ -15,6 +15,7 @@ public class ShowPlatformListValueJoiner implements ValueJoiner<InputShowEvent, 
     public OutputShowPlatformListEvent apply(InputShowEvent inputShowEvent, PlatformListEvent platformListEvent) {
         return OutputShowPlatformListEvent.newBuilder()
                 .setName(inputShowEvent.getName())
+                .setEventType(inputShowEvent.getEventType())
                 .setPlatforms(platformListEvent != null ? platformListEvent.getPlatforms() : new ArrayList<>())
                 .build();
     }

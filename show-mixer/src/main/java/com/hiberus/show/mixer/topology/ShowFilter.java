@@ -1,5 +1,6 @@
 package com.hiberus.show.mixer.topology;
 
+import com.hiberus.show.library.EventType;
 import com.hiberus.show.library.InputPlatformEvent;
 import com.hiberus.show.library.InputShowEvent;
 import com.hiberus.show.library.OutputShowPlatformListKey;
@@ -24,8 +25,25 @@ public class ShowFilter implements Predicate<OutputShowPlatformListKey, InputSho
 
     @Override
     public boolean test(final OutputShowPlatformListKey key, final InputShowEvent current) {
+        final boolean passes;
         final InputShowEvent previous = showStore().get(key);
-        final boolean passes = previous == null || !StringUtils.equals(previous.getName(), current.getName());
+
+        if (EventType.DELETE.equals(current.getEventType())) {
+            passes = true;
+        } else {
+            passes = previous == null || !StringUtils.equals(previous.getName(), current.getName());
+
+            if (passes) {
+                final EventType eventType = current.getEventType();
+                if (previous != null && !EventType.UPDATE.equals(eventType)) {
+                    log.warn("Entered value should be an UPDATE, not {}. Updating...", eventType);
+                    current.setEventType(EventType.UPDATE);
+                } else if (previous == null && EventType.UPDATE.equals(eventType)) {
+                    log.warn("Entered value should be a CREATE, not {}. Updating...", eventType);
+                    current.setEventType(EventType.CREATE);
+                }
+            }
+        }
 
         log.info("Previous: {}", previous);
         log.info("Current: {}", current);

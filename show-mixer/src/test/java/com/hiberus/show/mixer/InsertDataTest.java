@@ -1,6 +1,7 @@
 package com.hiberus.show.mixer;
 
 import com.hiberus.kafka.manager.KafkaManager;
+import com.hiberus.show.library.EventType;
 import com.hiberus.show.library.InputPlatformEvent;
 import com.hiberus.show.library.InputPlatformKey;
 import com.hiberus.show.library.InputShowEvent;
@@ -13,15 +14,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.Duration;
+import java.util.Date;
 
 public class InsertDataTest {
 
-    private static final String SHOW = "Firefly";
-    //private static final String SHOW = "Tenet";
+    private static final Show SHOW = Show.FIREFLY;
+    //private static final Show SHOW = SHOW.TENET;
 
-    //private static final String PLATFORM = "Filmin";
-    //private static final String PLATFORM = "HBO";
-    private static final String PLATFORM = "Netflix";
+    private static final Platform PLATFORM = Platform.FILMIN;
+    //private static final Platform PLATFORM = Platform.HBO;
 
     private static final String SHOWS_TOPIC = "show-mixer-input-shows";
     private static final String PLATFORMS_TOPIC = "show-mixer-input-platforms";
@@ -34,57 +35,130 @@ public class InsertDataTest {
 
     @Test
     public void testHappyPath() {
-        final String show = "Tenet";
-        final String platform = "Netflix";
+        final Show show = Show.BRAVE;
+        final Platform platform = Platform.HBO;
 
-        addShow(show);
-        addPlatform(show, platform);
+        addShow(show, EventType.CREATE);
+        addPlatform(show, platform, EventType.CREATE);
 
         final ConsumerRecords<OutputShowPlatformListKey, OutputShowPlatformListEvent> records =
                 KafkaManager.receiveRecords(OUTPUT_TOPIC, Duration.ofSeconds(2));
 
-        Assert.assertEquals(2, records.count());
+        Assert.assertEquals(1, records.count());
+    }
+
+    @Test
+    public void testUpdate() {
+        final Show show = Show.BRAVE;
+        final Platform platform = Platform.HBO;
+
+        addShow(show, EventType.CREATE);
+        addPlatform(show, platform, EventType.CREATE);
+
+        ConsumerRecords<OutputShowPlatformListKey, OutputShowPlatformListEvent> records =
+                KafkaManager.receiveRecords(OUTPUT_TOPIC, Duration.ofSeconds(2));
+
+        Assert.assertEquals(1, records.count());
+
+        OutputShowPlatformListEvent event = records.iterator().next().value();
+
+        Assert.assertEquals(show.name, event.getName().toString());
+
+        show.name = "Brave (Updated)";
+
+        addShow(show, EventType.UPDATE);
+
+        records = KafkaManager.receiveRecords(OUTPUT_TOPIC, Duration.ofSeconds(2));
+
+        Assert.assertEquals(1, records.count());
+
+        event = records.iterator().next().value();
+
+        Assert.assertEquals(show.name, event.getName().toString());
     }
 
     @Test
     public void addShow() {
-        addShow(SHOW);
+        addShow(SHOW, EventType.CREATE);
+    }
+
+    @Test
+    public void updateShow() {
+        final Show show = SHOW;
+
+        show.name = show.name + " (Updated)";
+
+        addShow(SHOW, EventType.UPDATE);
+    }
+
+    @Test
+    public void deleteShow() {
+        addShow(SHOW, EventType.DELETE);
+    }
+
+    @Test
+    public void deletePlatform() {
+        addPlatform(SHOW, PLATFORM, EventType.DELETE);
     }
 
     @Test
     public void addPlatform() {
-        addPlatform(SHOW, PLATFORM);
+        addPlatform(SHOW, PLATFORM, EventType.CREATE);
     }
 
-    private void addShow(final String show) {
+    private void addShow(final Show show, final EventType eventType) {
         final InputShowKey inputShowKey = InputShowKey.newBuilder()
-                .setId(generateId(show))
+                .setId(generateRandomId())
                 .build();
         final InputShowEvent inputShowEvent = InputShowEvent.newBuilder()
-                .setName(show)
-                .setIsan(generateISAN(show))
+                .setName(show.name)
+                .setIsan(show.isan)
+                .setEventType(eventType)
                 .build();
 
         KafkaManager.sendRecord(SHOWS_TOPIC, inputShowKey, inputShowEvent);
     }
 
-    private void addPlatform(final String show, final String platform) {
+    private void addPlatform(final Show show, final Platform platform, final EventType eventType) {
         final InputPlatformKey inputPlatformKey = InputPlatformKey.newBuilder()
-                .setId(generateId(platform))
+                .setId(generateRandomId())
                 .build();
         final InputPlatformEvent inputPlatformEvent = InputPlatformEvent.newBuilder()
-                .setPlatform(platform)
-                .setIsan(generateISAN(show))
+                .setPlatform(platform.name)
+                .setIsan(show.isan)
+                .setEventType(eventType)
                 .build();
 
         KafkaManager.sendRecord(PLATFORMS_TOPIC, inputPlatformKey, inputPlatformEvent);
     }
 
-    private String generateISAN(final String show) {
-        return Integer.toString(Math.abs(show.hashCode()));
+    private String generateRandomId() {
+        return Long.toString(new Date().getTime());
     }
 
-    private String generateId(final String text) {
-        return Integer.toString(Math.abs(text.hashCode())).substring(0, 5);
+    private enum Show {
+        FIREFLY("Firefly", "815200861"),
+        TENET("Tenet", "536464742"),
+        BRAVE("Brave", "64445536");
+
+        String name;
+        final String isan;
+
+        Show(final String name, final String isan) {
+            this.name = name;
+            this.isan = isan;
+        }
+    }
+
+    private enum Platform {
+        HBO("HBO"),
+        DISNEY("Disney+"),
+        FILMIN("Filmin");
+
+        final String name;
+
+        Platform(final String name) {
+            this.name = name;
+        }
     }
 }

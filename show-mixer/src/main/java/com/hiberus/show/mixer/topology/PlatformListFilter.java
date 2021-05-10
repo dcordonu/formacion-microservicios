@@ -1,5 +1,6 @@
 package com.hiberus.show.mixer.topology;
 
+import com.hiberus.show.library.EventType;
 import com.hiberus.show.library.InputPlatformEvent;
 import com.hiberus.show.library.OutputShowPlatformListKey;
 import com.hiberus.show.library.PlatformListEvent;
@@ -23,8 +24,15 @@ public class PlatformListFilter implements Predicate<OutputShowPlatformListKey, 
 
     @Override
     public boolean test(final OutputShowPlatformListKey key, final InputPlatformEvent current) {
+        final boolean passes;
         final PlatformListEvent previous = platformListStore().get(key);
-        final boolean passes = previous == null || !previous.getPlatforms().contains(current.getPlatform());
+
+        if (EventType.DELETE.equals(current.getEventType())) {
+            passes = true;
+        } else {
+            current.setEventType(EventType.CREATE);
+            passes = previous == null || !previous.getPlatforms().contains(current.getPlatform());
+        }
 
         log.info("Already entered: {}", previous);
         log.info("New to add: {}", current);

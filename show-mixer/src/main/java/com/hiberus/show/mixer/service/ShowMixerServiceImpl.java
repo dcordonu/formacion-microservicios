@@ -1,5 +1,6 @@
 package com.hiberus.show.mixer.service;
 
+import com.hiberus.show.library.EventType;
 import com.hiberus.show.library.InputPlatformEvent;
 import com.hiberus.show.library.InputPlatformKey;
 import com.hiberus.show.library.InputShowEvent;
@@ -8,6 +9,7 @@ import com.hiberus.show.library.OutputShowPlatformListEvent;
 import com.hiberus.show.library.OutputShowPlatformListKey;
 import com.hiberus.show.library.PlatformListEvent;
 import com.hiberus.show.mixer.topology.InputPlatformKeyMapper;
+import com.hiberus.show.mixer.topology.InputShowEventValueMapper;
 import com.hiberus.show.mixer.topology.InputShowKeyMapper;
 import com.hiberus.show.mixer.topology.PlatformListAggregator;
 import com.hiberus.show.mixer.topology.PlatformListFilter;
@@ -39,15 +41,21 @@ public class ShowMixerServiceImpl implements ShowMixerService {
     private final ShowPlatformListValueJoiner showPlatformListValueJoiner;
     private final ShowFilter showFilter;
     private final PlatformListFilter platformListFilter;
+    private final InputShowEventValueMapper inputShowEventValueMapper;
 
     @Override
     public KStream<OutputShowPlatformListKey, OutputShowPlatformListEvent> process(
             final KStream<InputShowKey, InputShowEvent> shows,
             final KStream<InputPlatformKey, InputPlatformEvent> platforms) {
 
-        final KTable<OutputShowPlatformListKey, InputShowEvent> showsTable = shows
+        final KStream<OutputShowPlatformListKey, InputShowEvent> keyMappedShowStream = shows
                 .peek((k, show) -> log.info("Show received: {}", show))
-                .selectKey(inputShowKeyMapper)
+                .selectKey(inputShowKeyMapper);
+
+        final KStream<OutputShowPlatformListKey, InputShowEvent> keyMappedShowStreamToDelete = keyMappedShowStream
+                .branch((k, v) -> EventType.DELETE.equals(v.getEventType()))[0];
+
+        final KTable<OutputShowPlatformListKey, InputShowEvent> showsTable = keyMappedShowStream
                 .filter(showFilter)
                 .groupByKey()
                 .reduce(showReducer, Named.as(SHOW_TABLE), Materialized.as(SHOW_TABLE));
@@ -61,6 +69,8 @@ public class ShowMixerServiceImpl implements ShowMixerService {
 
         return showsTable.leftJoin(platformsTable, showPlatformListValueJoiner)
                 .toStream()
+                .merge(keyMappedShowStreamToDelete.mapValues(inputShowEventValueMapper))
+                .filter((k, v) -> v != null)
                 .peek((k, showPlatformListEvent) -> log.info("Sent message {} to output channel", showPlatformListEvent));
     }
 }

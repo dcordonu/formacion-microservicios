@@ -3,6 +3,25 @@
   "namespace": "com.hiberus.show.library",
   "name": "PlatformListEvent",
   "fields": [
-    { "name":  "platforms", "type":  { "type": "array", "items": "string" } }
+    {
+      "name": "platforms",
+      "type": {
+        "type": "array",
+        "items": "string"
+      }
+    },
+    {
+      "name": "eventType",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "namespace": "com.hiberus.show.library",
+        "symbols": [
+          "CREATE",
+          "UPDATE",
+          "DELETE"
+        ]
+      }
+    }
   ]
 }
