@@ -1,0 +1,28 @@
+{
+  "type": "record",
+  "namespace": "com.hiberus.show.library.topology",
+  "name": "InputShowEvent",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "isan",
+      "type": "string"
+    },
+    {
+      "name": "eventType",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "namespace": "com.hiberus.show.library.topology",
+        "symbols": [
+          "CREATE",
+          "UPDATE",
+          "DELETE"
+        ]
+      }
+    }
+  ]
+}

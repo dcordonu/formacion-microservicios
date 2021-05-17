@@ -1,0 +1,8 @@
+{
+  "type": "record",
+  "namespace": "com.hiberus.show.library.topology",
+  "name": "InputShowKey",
+  "fields": [
+    { "name": "id", "type": "string" }
+  ]
+}

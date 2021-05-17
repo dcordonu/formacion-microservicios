@@ -1,7 +1,7 @@
 package com.hiberus.show.api.mapper;
 
-import com.hiberus.show.api.domain.dto.ShowDto;
-import com.hiberus.show.api.domain.entity.Show;
+import com.hiberus.show.library.dto.ShowDto;
+import com.hiberus.show.library.repository.Show;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

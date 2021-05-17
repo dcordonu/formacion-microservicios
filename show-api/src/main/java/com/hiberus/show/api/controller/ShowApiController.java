@@ -1,6 +1,6 @@
 package com.hiberus.show.api.controller;
 
-import com.hiberus.show.api.domain.dto.ShowDto;
+import com.hiberus.show.library.dto.ShowDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;

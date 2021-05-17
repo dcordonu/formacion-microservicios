@@ -1,13 +1,13 @@
 package com.hiberus.show.mixer;
 
 import com.hiberus.kafka.manager.KafkaManager;
-import com.hiberus.show.library.EventType;
-import com.hiberus.show.library.InputPlatformEvent;
-import com.hiberus.show.library.InputPlatformKey;
-import com.hiberus.show.library.InputShowEvent;
-import com.hiberus.show.library.InputShowKey;
-import com.hiberus.show.library.OutputShowPlatformListEvent;
-import com.hiberus.show.library.OutputShowPlatformListKey;
+import com.hiberus.show.library.topology.EventType;
+import com.hiberus.show.library.topology.InputPlatformEvent;
+import com.hiberus.show.library.topology.InputPlatformKey;
+import com.hiberus.show.library.topology.InputShowEvent;
+import com.hiberus.show.library.topology.InputShowKey;
+import com.hiberus.show.library.topology.OutputShowPlatformListEvent;
+import com.hiberus.show.library.topology.OutputShowPlatformListKey;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,8 +18,8 @@ import java.util.Date;
 
 public class InsertDataTest {
 
-    private static final Show SHOW = Show.FIREFLY;
-    //private static final Show SHOW = SHOW.TENET;
+    //private static final Show SHOW = Show.FIREFLY;
+    private static final Show SHOW = Show.TENET;
 
     private static final Platform PLATFORM = Platform.FILMIN;
     //private static final Platform PLATFORM = Platform.HBO;

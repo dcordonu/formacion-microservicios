@@ -1,8 +1,8 @@
 package com.hiberus.show.mixer.topology;
 
-import com.hiberus.show.library.InputShowEvent;
-import com.hiberus.show.library.OutputShowPlatformListEvent;
-import com.hiberus.show.library.PlatformListEvent;
+import com.hiberus.show.library.topology.InputShowEvent;
+import com.hiberus.show.library.topology.OutputShowPlatformListEvent;
+import com.hiberus.show.library.topology.PlatformListEvent;
 import org.apache.kafka.streams.kstream.ValueJoiner;
 import org.springframework.stereotype.Component;
 

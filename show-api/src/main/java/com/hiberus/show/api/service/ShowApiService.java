@@ -1,6 +1,7 @@
 package com.hiberus.show.api.service;
 
-import com.hiberus.show.api.domain.dto.ShowDto;
+
+import com.hiberus.show.library.dto.ShowDto;
 
 import java.util.Optional;
 

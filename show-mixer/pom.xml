@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>com.hiberus.show</groupId>
-            <artifactId>show-library</artifactId>
+            <artifactId>show-library-topology</artifactId>
             <version>${shows.library.version}</version>
         </dependency>
         <dependency>

@@ -1,7 +1,7 @@
 package com.hiberus.show.api.controller;
 
-import com.hiberus.show.api.domain.dto.ShowDto;
 import com.hiberus.show.api.service.ShowApiService;
+import com.hiberus.show.library.dto.ShowDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

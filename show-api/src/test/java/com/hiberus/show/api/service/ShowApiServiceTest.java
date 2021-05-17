@@ -1,8 +1,8 @@
 package com.hiberus.show.api.service;
 
-import com.hiberus.show.api.domain.dto.ShowDto;
-import com.hiberus.show.api.domain.entity.Show;
 import com.hiberus.show.api.repository.ShowApiRepository;
+import com.hiberus.show.library.dto.ShowDto;
+import com.hiberus.show.library.repository.Show;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
