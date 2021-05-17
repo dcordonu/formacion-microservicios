@@ -1,0 +1,20 @@
+server:
+  port: 0
+spring:
+  application:
+    name: show-sink
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: shows
+  kafka:
+    consumer:
+      group-id: ${spring.application.name}
+      key-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      properties:
+        specific.avro.reader: true
+      topic: show-mixer-output
+    properties:
+      schema.registry.url: http://localhost:8081
